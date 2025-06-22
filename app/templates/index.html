@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Emotion Analyzer with LIA</title>
+    
+    <!-- Bootstrap 5 CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Chart.js (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-light">
+
+    <div class="container py-5">
+
+        <h1 class="mb-4 text-center">Emotion Analyzer with LIA</h1>
+
+        <!-- Form -->
+        <form method="post" action="/" class="mb-5">
+            <div class="mb-3">
+                <textarea name="text" class="form-control" rows="4" placeholder="Enter your text here...">{{ text or '' }}</textarea>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary px-5">Analyze</button>
+            </div>
+        </form>
+
+        {% if emotions or lia %}
+        <!-- Results -->
+        <div class="row">
+
+            {% if emotions %}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Transformer Emotion Results</h5>
+                        <canvas id="emotionChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if lia %}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">LIA Word Category Counts</h5>
+                        <canvas id="liaChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Charts scripts -->
+    {% if emotions %}
+    <script>
+    const emotionData = {
+        labels: {{ emotions.keys()|list | tojson }},
+        datasets: [{
+            label: 'Emotion Probability',
+            data: {{ emotions.values()|list | tojson }},
+            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+        }]
+    };
+
+    new Chart(document.getElementById('emotionChart'), {
+        type: 'bar',
+        data: emotionData,
+        options: {
+            scales: { y: { beginAtZero: true, max: 1 } },
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+    </script>
+    {% endif %}
+
+    {% if lia %}
+    <script>
+    const liaData = {
+        labels: {{ lia.keys()|list | tojson }},
+        datasets: [{
+            label: 'Category Normalized Count',
+            data: {{ lia.values()|list | tojson }},
+            backgroundColor: 'rgba(255, 99, 132, 0.7)'
+        }]
+    };
+
+    new Chart(document.getElementById('liaChart'), {
+        type: 'bar',
+        data: liaData,
+        options: {
+            scales: { y: { beginAtZero: true } },
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+    </script>
+    {% endif %}
+
+</body>
+</html>
